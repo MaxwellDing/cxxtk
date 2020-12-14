@@ -46,14 +46,14 @@
 namespace cxxtk {
 
 struct Task {
-  void operator()(int id) {
+  void operator()() {
     if (func) {
-      (*func)(id);
+      (*func)();
     } else {
       printf("No task function\n");
     }
   }
-  std::shared_ptr<std::function<void(int)>> func = nullptr;
+  std::shared_ptr<std::function<void()>> func = nullptr;
   int priority = 0;
   Task() = default;
 };
@@ -169,16 +169,26 @@ class ThreadPool {
   // run the user's function that excepts argument int - id of the running thread. returned value is templatized
   // operator returns std::future, where the user can get the result and rethrow the catched exceptins
   template <typename callable, typename... arguments>
-  auto Push(int priority, callable &&f, arguments &&... args) -> std::future<decltype(f(0, args...))> {
-    auto pck = std::make_shared<std::packaged_task<decltype(f(0, args...))(int)>>(
-        std::bind(std::forward<callable>(f), std::placeholders::_1, std::forward<arguments>(args)...));
+  auto Push(int priority, callable &&f, arguments &&... args) -> std::future<decltype(f(args...))> {
+    auto pck = std::make_shared<std::packaged_task<decltype(f(args...))()>>(
+        std::bind(std::forward<callable>(f), std::forward<arguments>(args)...));
     task_type t;
-    t.func.reset(new std::function<void(int id)>([pck](int id) { (*pck)(id); }));
+    t.func.reset(new std::function<void()>([pck]() { (*pck)(); }));
     t.priority = priority;
     task_q_.push(t);
     std::unique_lock<std::mutex> lock(mutex_);
     cv_.notify_one();
     return pck->get_future();
+  }
+
+  template <typename callable, typename... arguments>
+  void VoidPush(int priority, callable &&f, arguments &&... args) {
+    task_type t;
+    t.func.reset(new std::function<void()>(std::bind(std::forward<callable>(f), std::forward<arguments>(args)...)));
+    t.priority = priority;
+    task_q_.push(t);
+    std::unique_lock<std::mutex> lock(mutex_);
+    cv_.notify_one();
   }
 
  private:
@@ -190,14 +200,14 @@ class ThreadPool {
 
   void SetThread(int i) {
     std::shared_ptr<std::atomic<bool>> tmp_flag(flags_[i]);
-    auto f = [this, i, tmp_flag]() {
+    auto f = [this, tmp_flag]() {
       std::atomic<bool> &flag = *tmp_flag;
       task_type t;
       bool have_task = task_q_.pop(t);
       while (true) {
         // if there is anything in the queue
         while (have_task) {
-          t(i);
+          t();
           if (flag) {
             // the thread is wanted to stop, return even if the queue is not empty yet
             return;
