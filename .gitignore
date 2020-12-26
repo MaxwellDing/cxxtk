@@ -30,3 +30,11 @@
 *.exe
 *.out
 *.app
+
+# Compiled product
+build
+lib
+
+# editor dotfile and cache
+.vscode
+tag

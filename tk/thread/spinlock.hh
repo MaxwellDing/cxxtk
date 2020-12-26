@@ -1,5 +1,5 @@
 /*************************************************************************
- * Copyright (C) [2019] by Maxwell Ding. All rights reserved
+ * Copyright (C) [2020] by MaxwellDing. All rights reserved
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,12 +24,12 @@
  * This file contains a declaration of the SpinLock class, and helper class SpinLockGuard.
  */
 
-#ifndef CXXTK_SPIN_LOCK_H_
-#define CXXTK_SPIN_LOCK_H_
+#ifndef CXXTK_THREAD_SPIN_LOCK_HH_
+#define CXXTK_THREAD_SPIN_LOCK_HH_
 
 #include <atomic>
 
-namespace cxxtk {
+namespace tk {
 
 /**
  * @brief Spin lock implementation using atomic_flag and memory_order
@@ -73,6 +73,6 @@ class SpinLockGuard {
   SpinLock &lock_;
 };
 
-}  // namespace cxxtk
+}  // namespace tk
 
-#endif  // CXXTK_SPIN_LOCK_H_
+#endif  // CXXTK_THREAD_SPIN_LOCK_HH_
