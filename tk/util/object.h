@@ -32,7 +32,6 @@ class Object {
   }
 
  private:
-  friend class Printer<T>;
   static std::atomic<uint64_t> construct_;
   static std::atomic<uint64_t> copy_construct_;
   static std::atomic<uint64_t> move_construct_;
