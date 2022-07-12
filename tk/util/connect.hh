@@ -55,7 +55,8 @@ template<SignalPolicy policy, typename... Args>
 class Slot : public SlotBase<Slot<policy, Args...>> {
  public:
   using OnFunc = std::function<void(Args...)>;
-  Slot(OnFunc&& func) noexcept : func_(std::forward<OnFunc>(func)) {}
+  Slot(OnFunc&& func) noexcept : func_(std::move(func)) {}
+  Slot(OnFunc const& func) noexcept : func_(func) {}
 
   template <typename... RArgs, typename = std::enable_if_t<std::is_invocable_v<OnFunc, RArgs...>>>
   void Exec(RArgs&&... args) {
@@ -70,7 +71,8 @@ template<typename... Args>
 class Slot<SignalPolicy::ASYNC, Args...> : public SlotBase<Slot<SignalPolicy::ASYNC, Args...>> {
  public:
   using OnFunc = std::function<void(Args...)>;
-  Slot(OnFunc&& func) noexcept : func_(std::forward<OnFunc>(func)) {}
+  Slot(OnFunc&& func) noexcept : func_(std::move(func)) {}
+  Slot(OnFunc const& func) noexcept : func_(func) {}
 
   template <typename... RArgs, typename = std::enable_if_t<std::is_invocable_v<OnFunc, RArgs...>>>
   void Exec(RArgs&&... args) {
