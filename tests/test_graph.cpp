@@ -1,4 +1,4 @@
-#include "graph.hpp"
+#include "graph/graph.hpp"
 
 int main() {
   tk::Graph g;

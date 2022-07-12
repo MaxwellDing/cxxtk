@@ -4,7 +4,7 @@
 #include <vector>
 #include <memory>
 #include "gsl/gsl-lite.hpp"
-#include "noncopy.hpp"
+#include "util/noncopy.hpp"
 
 namespace tk {
 
