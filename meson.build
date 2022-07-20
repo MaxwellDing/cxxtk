@@ -13,7 +13,7 @@ thread_dep = dependency('threads')
 # foo_dep = declare_dependency(link_with : foo_lib)
 
 gsl_inc = './3rdparty/gsl-lite/include'
-tk_inc = './tk'
+tk_inc = './src'
 
 # libs = [thread_dep, curl_dep, foo_dep]
 libs = [thread_dep]
@@ -22,6 +22,12 @@ incs = include_directories([gsl_inc, tk_inc])
 
 src = ['tests/test_graph.cpp']
 executable('graph_test',
+           sources : src,
+           include_directories : incs,
+           dependencies : libs)
+
+src = ['tests/test_obj_pool.cpp']
+executable('objpool_test',
            sources : src,
            include_directories : incs,
            dependencies : libs)

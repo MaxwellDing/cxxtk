@@ -3,8 +3,9 @@
 #include <type_traits>
 #include <utility>
 
-#include "util/noncopy.hpp"
+#include "tk/util/noncopy.hpp"
 
+namespace tk {
 namespace util {
 
 // A helper function to help run a lambda at the start.
@@ -15,7 +16,7 @@ class Register {
 };
 
 template <typename F>
-class FinalAction : public NonCopyable {
+class FinalAction : public Noncopy {
  public:
   explicit FinalAction(F func)
     : func_(std::move(func)), enable_{true} {}
@@ -44,5 +45,5 @@ FinalAction<F> finally(F&& f) {
   return FinalAction<F>(std::forward<F>(f));
 }
 
-}  // namespace util
+}}  // namespace tk::util::
 
