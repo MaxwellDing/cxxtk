@@ -22,10 +22,12 @@ private:
     del_t del_{nullptr};
 };
 
+namespace {
 template<typename T>
 void destructDel(void* o) { reinterpret_cast<T*>(o)->~T(); }
 template<typename T>
 void deleteDel(void* o) { delete reinterpret_cast<T*>(o); }
+}
 
 class ObjectPool
 {
@@ -35,21 +37,21 @@ public:
     {
         buf_ = reinterpret_cast<char*>(malloc(bytes));
     }
-    template <typename T>
-    T* requireObj()
+    template <typename T, typename... Args>
+    T* requireObj(Args&&... args)
     {
-        static_assert(std::is_default_constructible<T>::value, "Object is not default constructable");
+        static_assert(std::is_constructible<T, Args...>::value, "Object is not default constructable");
         T* ptr;
         if (ofs_ + sizeof(T) <= capacity_)
         {
             // construct without malloc
-            ptr = new(buf_ + ofs_) T;
+            ptr = new(buf_ + ofs_) T(std::forward<Args>(args)...);
             ofs_ += sizeof(T);
             obj_q_.emplace_back(ptr, &destructDel<T>);
         }
         else
         {
-            ptr = new T;
+            ptr = new T(std::forward<Args>(args)...);
             obj_q_.emplace_back(ptr, &deleteDel<T>);
         }
         return ptr;
